@@ -17,19 +17,7 @@ object testJedis {
     println(keyOrPattern)
     println(hgetAllKey)
 
-    var nodes: scala.collection.mutable.Map[String, JedisPool] = scala.collection.mutable.Map()
-    val cliHost = RedisHostParser(hostStr)
-    withCluster(Set(cliHost), { cli =>
-      nodes = cli.getClusterNodes.asScala
-    })
-    println("===== cluster nodes =====")
-    println(nodes)
-
-    val HostAndPortSet: Set[RedisHostParser] = nodes.keys.toSet.map {
-      key: String =>
-        val addr = "c@" + key.toString + "/0"
-        RedisHostParser(addr)
-    }
+    val HostAndPortSet = hostStr.split(",").toSet.map(RedisHostParser)
 
     withCluster(HostAndPortSet, { cli =>
       val scan = new ScanParams().`match`(keyOrPattern).count(50000)
